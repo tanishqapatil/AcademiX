@@ -14,7 +14,11 @@ export default function StudentCourses() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('https://your-backend.com/api/student/courses');
+      // list my courses
+      const res = await api.get('/api/courses/student/courses');
+      // join by key
+      await api.post(`/api/courses/${courseId}/join`, { code: accessKey });
+
       setCourses(res.data);
     } catch (err) {
       console.log(err);
@@ -35,20 +39,20 @@ export default function StudentCourses() {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity 
-  style={{
-    backgroundColor: '#3b82f6', // blue
-    paddingVertical: 8,          // smaller height
-    paddingHorizontal: 16,       // smaller width
-    borderRadius: 12,
-    alignSelf: 'flex-start',     // button aligns to left
-    marginBottom: 32,
-    marginTop: 32,
-  }} 
-  onPress={() => router.push('/dashboard/student')}
->
-  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>← Back</Text>
-</TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#3b82f6', // blue
+          paddingVertical: 8,          // smaller height
+          paddingHorizontal: 16,       // smaller width
+          borderRadius: 12,
+          alignSelf: 'flex-start',     // button aligns to left
+          marginBottom: 32,
+          marginTop: 32,
+        }}
+        onPress={() => router.push('/dashboard/student')}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>← Back</Text>
+      </TouchableOpacity>
 
 
 

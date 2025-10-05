@@ -11,16 +11,20 @@ export default function Index() {
       const token = await AsyncStorage.getItem('token');
       const role = await AsyncStorage.getItem('userType');
 
-      if (token && role === 'teacher') router.replace('/teacher/dashboard');
-      else if (token && role === 'student') router.replace('/dashboard/student');
-      else router.replace('/auth/login');
+      if (token && role === 'teacher') {
+        router.replace('/teacher/dashboard');
+      } else if (token && role === 'student') {
+        router.replace('/dashboard/student');
+      } else {
+        router.replace('/auth/login');
+      }
     };
 
     checkAuth();
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center bg-white">
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
       <ActivityIndicator size="large" color="#268740" />
     </View>
   );

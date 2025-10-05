@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Alert, StyleSheet, ScrollView } from 'react-native';
+import { Alert, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { api } from '../../src/api';
 
 export default function Login() {
   const router = useRouter();
@@ -18,13 +19,16 @@ export default function Login() {
     }
 
     try {
-      const res = await axios.post('http://192.168.1.33:5000/api/auth/login', { email, password });
+      const res = await api.post('/api/auth/login', { email, password });
 
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('userType', res.data.user.role);
 
-      if (res.data.user.role === 'teacher') router.replace('/dashboard/teacher');
-      else router.replace('/dashboard/student');
+      if (res.data.user.role === 'teacher') {
+        router.replace('/teacher/dashboard');
+      } else {
+        router.replace('/dashboard/student');
+      }
 
     } catch (err) {
       if (err.response) {
@@ -56,6 +60,8 @@ export default function Login() {
         secureTextEntry
         mode="outlined"
       />
+
+      {errorMessage ? <Text style={{ color: "red", marginBottom: 10 }}>{errorMessage}</Text> : null}
 
       <Button mode="contained" onPress={handleLogin} style={styles.button}>
         Login

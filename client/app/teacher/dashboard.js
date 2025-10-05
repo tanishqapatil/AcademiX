@@ -39,7 +39,7 @@ export default function TeacherDashboard() {
       {/* Logout */}
       <TouchableOpacity 
         style={[styles.card, { backgroundColor: '#ef4444' }]} 
-        onPress={() => router.push('/login')}
+        onPress={() => router.push('/auth/login')}
       >
         <Text style={styles.cardTitle}>🚪 Logout</Text>
         <Text style={styles.cardDesc}>Sign out of your teacher account safely</Text>
@@ -49,43 +49,10 @@ export default function TeacherDashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-    padding: 20,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#1e3a8a',
-    textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 28,
-  },
-  card: {
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 6,
-  },
-  cardDesc: {
-    fontSize: 14,
-    color: '#f1f5f9',
-  },
+  container: { flex: 1, backgroundColor: '#f3f4f6', padding: 20 },
+  title: { fontSize: 30, fontWeight: 'bold', color: '#1e3a8a', textAlign: 'center', marginTop: 20, marginBottom: 8 },
+  subtitle: { fontSize: 16, color: '#6b7280', textAlign: 'center', marginBottom: 28 },
+  card: { borderRadius: 18, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 6, elevation: 6 },
+  cardTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff', marginBottom: 6 },
+  cardDesc: { fontSize: 14, color: '#f1f5f9' },
 });

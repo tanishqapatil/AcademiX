@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Alert, StyleSheet, ScrollView } from 'react-native';
+import { Alert, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { api } from '../../src/api';
 
 export default function Signup() {
   const router = useRouter();
@@ -19,19 +20,34 @@ export default function Signup() {
     }
 
     try {
-      const res = await axios.post('http://192.168.1.33:5000/api/auth/register', { name, email, password, role });
+      const isGmail = /^[^\s@]+@gmail\.com$/i.test(email);
+      if (!isGmail) {
+        Alert.alert('Error', 'Please use a @gmail.com email');
+        return;
+      }
+      if (!['teacher','student'].includes(role)) {
+        Alert.alert('Error', "Role must be 'teacher' or 'student'");
+        return;
+      }
+
+      const res = await api.post('/api/auth/register', { name, email, password, role });
 
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('userType', res.data.user.role);
 
       Alert.alert('Success', 'Account created successfully');
 
-      if (res.data.user.role === 'teacher') router.replace('/dashboard/teacher');
-      else router.replace('/dashboard/student');
+      if (res.data.user.role === 'teacher') {
+        router.replace('/teacher/dashboard');
+      } else {
+        router.replace('/dashboard/student');
+      }
 
     } catch (err) {
-      Alert.alert('Signup Failed', err.response?.data?.message || 'Try again');
-    }
+  console.log("Signup error:", err.response?.data || err.message);
+  Alert.alert('Signup Failed', err.response?.data?.message || err.message || 'Try again');
+}
+
   };
 
   return (

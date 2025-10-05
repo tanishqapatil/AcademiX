@@ -10,6 +10,14 @@ exports.register = async(req,res) =>{
         if(existing) return res.status(400).json({message:"User already exists"})
 
         const hashed = await bcrypt.hash(password,10);
+        const gmailOnly = /^[^\s@]+@gmail\.com$/i;
+        if (!gmailOnly.test(email)) {
+            return res.status(400).json({ message: "Email must be a @gmail.com address" });
+        }
+        const allowed = ['teacher','student'];
+        if (!allowed.includes(role)) {
+            return res.status(400).json({ message: "Role must be 'teacher' or 'student'" });
+        }
 
         const user = await User.create({name,email,password:hashed,role})
         const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:'7d'})
