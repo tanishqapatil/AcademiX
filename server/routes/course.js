@@ -1,20 +1,43 @@
+// server/routes/course.js
 const express = require('express');
 const router = express.Router();
+
 const auth = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
+
 const {
-  createCourse, getMyCourses, getEnrolledStudents,
-  rotateKey, joinByKey, myCourses, courseStudents
+  createCourse,
+  listMyCoursesTeacher,
+  rotateAccessKey,
+  getStudents,
+  joinCourse,
+  myCourses,
+  getCourseById,
 } = require('../controllers/courseController');
 
-// Teacher
-router.post('/create', auth, requireRole('teacher'), createCourse);
-router.get('/courses', auth, requireRole('teacher'), getMyCourses);
-router.post('/:id/rotate-key', auth, requireRole('teacher'), rotateKey);
-router.get('/:id/students', auth, requireRole('teacher'), courseStudents);
+// ---------- STATIC / NON-PARAM ROUTES FIRST ----------
 
-// Student
-router.get('/student/courses', auth, requireRole('student'), myCourses);
-router.post('/:id/join', auth, requireRole('student'), joinByKey);
+// Create course (preferred + legacy alias)
+router.post('/',        auth, requireRole('teacher'), createCourse);  // POST /api/courses
+router.post('/create',  auth, requireRole('teacher'), createCourse);  // POST /api/courses/create
+
+// Teacher’s own courses (your client calls GET /api/courses/courses)
+router.get('/courses',  auth, requireRole('teacher'), listMyCoursesTeacher);
+
+// Optional cleaner alias for teacher’s own courses (not used by your client, but handy)
+router.get('/mine',     auth, requireRole('teacher'), listMyCoursesTeacher);
+
+// Student’s enrolled courses
+router.get('/mine/student', auth, requireRole('student'), myCourses);
+
+// ---------- PARAM ROUTES (order matters) ----------
+
+// Per-course actions
+router.post('/:courseId/rotate-key', auth, requireRole('teacher'), rotateAccessKey);
+router.get('/:courseId/students',    auth, requireRole('teacher'), getStudents);
+router.post('/:courseId/join',       auth, requireRole('student'), joinCourse);
+
+// MUST BE LAST: catch-all to fetch a single course
+router.get('/:courseId', auth, getCourseById);
 
 module.exports = router;

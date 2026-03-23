@@ -1,6 +1,13 @@
-module.exports = (...roles) => (req, res, next) => {
-  if (!req.user || !roles.includes(req.user.role)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-  next();
+// server/middleware/requireRole.js
+module.exports = function requireRole(role) {
+  return function (req, res, next) {
+    try {
+      if (!req.user || req.user.role !== role) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  };
 };

@@ -1,140 +1,53 @@
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
+import { api } from '../../src/api';
 
-export default function StudentCourses() {
-  const [courses, setCourses] = useState([]);
-  const [accessKey, setAccessKey] = useState('');
-  const router = useRouter();
+export default function MyCourses() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState('');
 
   useEffect(() => {
-    fetchCourses();
+    (async () => {
+      try {
+        const { data } = await api.get('/api/courses/mine/student');
+        setItems(Array.isArray(data) ? data : []);
+      } catch (e) {
+        setErr(e?.response?.data?.message || 'Failed to load');
+      } finally { setLoading(false); }
+    })();
   }, []);
 
-  const fetchCourses = async () => {
-    try {
-      // list my courses
-      const res = await api.get('/api/courses/student/courses');
-      // join by key
-      await api.post(`/api/courses/${courseId}/join`, { code: accessKey });
-
-      setCourses(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const joinCourse = async () => {
-    if (!accessKey) return;
-    try {
-      await axios.post('https://your-backend.com/api/student/join', { key: accessKey });
-      setAccessKey('');
-      fetchCourses();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  if (loading) return <View style={s.c}><ActivityIndicator /><Text>Loading…</Text></View>;
+  if (err) return <View style={s.c}><Text style={{color:'#b91c1c'}}>{err}</Text></View>;
 
   return (
-    <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity
-        style={{
-          backgroundColor: '#3b82f6', // blue
-          paddingVertical: 8,          // smaller height
-          paddingHorizontal: 16,       // smaller width
-          borderRadius: 12,
-          alignSelf: 'flex-start',     // button aligns to left
-          marginBottom: 32,
-          marginTop: 32,
-        }}
-        onPress={() => router.push('/dashboard/student')}
-      >
-        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>← Back</Text>
-      </TouchableOpacity>
-
-
-
-      <Text style={styles.title}>My Courses</Text>
-      <Text style={styles.subtitle}>Manage all the courses you are enrolled in</Text>
-
-      <TextInput
-        placeholder="Enter Access Key"
-        style={styles.input}
-        value={accessKey}
-        onChangeText={setAccessKey}
-      />
-      <TouchableOpacity style={styles.actionBtn} onPress={joinCourse}>
-        <Text style={styles.actionBtnText}>Join Course</Text>
-      </TouchableOpacity>
-
+    <View style={s.box}>
       <FlatList
-        data={courses}
-        keyExtractor={(item) => item._id}
+        data={items}
+        keyExtractor={(c) => String(c._id)}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.courseName}>{item.name}</Text>
-          </View>
+          <Link
+            href={{ pathname: '/dashboard/course/[id]/materials', params: { id: String(item._id) } }}
+            asChild
+          >
+            <TouchableOpacity style={s.card}>
+              <Text style={s.title}>{item.title}</Text>
+              <Text style={s.subtitle}>{item.description || 'No description'}</Text>
+              <Text style={s.link}>Open Materials ›</Text>
+            </TouchableOpacity>
+          </Link>
         )}
+        ListEmptyComponent={<Text style={{color:'#6b7280'}}>No enrolled courses</Text>}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-    padding: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1d4ed8',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: '#fff',
-  },
-  actionBtn: {
-    backgroundColor: '#10b981',
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 24, // spacing between buttons and other content
-    alignItems: 'center',
-  },
-  actionBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
-  },
-  courseName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
+const s = StyleSheet.create({
+  c:{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:'#fff'},
+  box:{flex:1,backgroundColor:'#fff',padding:16},
+  card:{padding:14,borderRadius:12,backgroundColor:'#f3f4f6',marginBottom:10},
+  title:{fontWeight:'700',fontSize:16}, subtitle:{color:'#6b7280',marginTop:4},
+  link:{ color:'#2563eb', marginTop:8, fontWeight:'600' },
 });

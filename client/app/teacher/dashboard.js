@@ -1,45 +1,50 @@
+// app/teacher/dashboard.js
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TeacherDashboard() {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try { await AsyncStorage.clear(); } finally { router.replace('/auth/login'); }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Teacher Dashboard</Text>
       <Text style={styles.subtitle}>Manage your courses and students effectively</Text>
 
-      {/* My Courses */}
-      <TouchableOpacity 
-        style={[styles.card, { backgroundColor: '#3b82f6' }]} 
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: '#3b82f6' }]}
         onPress={() => router.push('/teacher/courses')}
       >
         <Text style={styles.cardTitle}>📚 My Courses</Text>
         <Text style={styles.cardDesc}>View and manage all your created courses</Text>
       </TouchableOpacity>
 
-      {/* Create Course */}
-      <TouchableOpacity 
-        style={[styles.card, { backgroundColor: '#10b981' }]} 
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: '#10b981' }]}
         onPress={() => router.push('/teacher/CreateCourse')}
       >
         <Text style={styles.cardTitle}>➕ Create Course</Text>
         <Text style={styles.cardDesc}>Easily add a new course for your students</Text>
       </TouchableOpacity>
 
-      {/* Enrolled Students */}
-      <TouchableOpacity 
-        style={[styles.card, { backgroundColor: '#f59e0b' }]} 
-        onPress={() => router.push('/teacher/students')}
+      {/* ⬇️ pass mode as a param object */}
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: '#f59e0b' }]}
+        onPress={() =>
+          router.push({ pathname: '/teacher/courses', params: { mode: 'students' } })
+        }
       >
         <Text style={styles.cardTitle}>👩‍🎓 Enrolled Students</Text>
-        <Text style={styles.cardDesc}>Check students who joined your courses</Text>
+        <Text style={styles.cardDesc}>Pick a course to see its students</Text>
       </TouchableOpacity>
 
-      {/* Logout */}
-      <TouchableOpacity 
-        style={[styles.card, { backgroundColor: '#ef4444' }]} 
-        onPress={() => router.push('/auth/login')}
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: '#ef4444' }]}
+        onPress={handleLogout}
       >
         <Text style={styles.cardTitle}>🚪 Logout</Text>
         <Text style={styles.cardDesc}>Sign out of your teacher account safely</Text>
